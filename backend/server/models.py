@@ -1,10 +1,11 @@
 from tortoise import fields
 from tortoise.models import Model
 
+
 class FeedBack(Model):
     id = fields.IntField(pk=True)
     product_id = fields.IntField(index=True)
-    product_name  = fields.TextField()
+    product_name = fields.TextField()
     stars = fields.IntField()
     uid = fields.CharField(max_length=50)
     feedback = fields.TextField()
@@ -24,6 +25,7 @@ class FeedBack(Model):
             "productName": self.product_name,
             "feedback": self.feedback,
         }
+
 
 class Security(Model):
     id = fields.IntField(pk=True)

@@ -15,6 +15,7 @@ SMC_DB_PASSWD = os.getenv('SMC_DB_PASSWD')
 if SMC_DB_PASSWD is None:
     raise LookupError("SMC_DB_PASSWD env not set")
 
+
 class Meal(Enum):
     BREAKFAST = 1
     LUNCH = 2
@@ -23,6 +24,8 @@ class Meal(Enum):
 
 
 pool = None
+
+
 async def get_pool():
     global pool
     if pool is not None:
@@ -30,12 +33,13 @@ async def get_pool():
 
     print("Creating Pool to SMC db")
     pool = await aiomysql.create_pool(
-            user='canteenadmin',
-            password=SMC_DB_PASSWD,
-            host='10.0.0.139',
-            db='django',
-            ssl=False)
+        user='canteenadmin',
+        password=SMC_DB_PASSWD,
+        host='10.0.0.139',
+        db='django',
+        ssl=False)
     return cast(aiomysql.Pool, pool)
+
 
 async def close_pool():
     pool = await get_pool()
@@ -48,14 +52,14 @@ async def close_pool():
 class FoodItem:
     product_id: int
     name: str
-    meal: int # Follows enum Meal
+    meal: int  # Follows enum Meal
     special: bool
 
 
 # {'id': 253, 'attimeof_id': 3, 'product_id': 253, 'image':
-        # 'Amul Butter .jpg', 'pname': 'Amul Butter ',
-        # 'r_uprice': 5.0, 'nr_uprice': 5.0, 'available':
-        # 'Yes', 'special': 'No'}]
+    # 'Amul Butter .jpg', 'pname': 'Amul Butter ',
+    # 'r_uprice': 5.0, 'nr_uprice': 5.0, 'available':
+    # 'Yes', 'special': 'No'}]
 
 MENU_QUERY = """
 SELECT
@@ -69,6 +73,7 @@ ORDER BY
   canteen_attimeof_food.attimeof_id,
   canteen_product.id;
 """
+
 
 async def get_menu() -> list[FoodItem]:
     # TODO implement caching
@@ -84,7 +89,7 @@ async def get_menu() -> list[FoodItem]:
             product_id=raw_item['id'],
             name=raw_item['pname'],
             meal=raw_item['attimeof_id'],
-            special= True if raw_item['special'] == 'Yes' else False)
+            special=True if raw_item['special'] == 'Yes' else False)
         menu_items.append(item)
 
     return menu_items
@@ -99,6 +104,7 @@ from
 where
   email = %s;
 """
+
 
 async def get_user_details(email: str):
     # TODO implement caching
@@ -124,6 +130,7 @@ order by
   datetime desc
 """
 
+
 async def get_past_orders(uid: str):
     MEAL_COUNT = 20
     # TODO implement caching
@@ -140,10 +147,10 @@ async def get_past_orders(uid: str):
         meal_items = json.dumps(meal['food'])
         balance = meal['presentbalance']
         meal_obj = {
-                "balance": balance,
-                "datetime": meal_datetime,
-                "items": meal_items,
-                }
+            "balance": balance,
+            "datetime": meal_datetime,
+            "items": meal_items,
+        }
         meal_list.append(meal_obj)
 
     return meal_list

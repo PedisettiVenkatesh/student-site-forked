@@ -29,7 +29,7 @@ async def validate_user(username: str, password: str):
 def generate_token():
     # first 10 digits time inseconds, then random token 9 char
     # TODO read uuid
-    return str(int(time.time())) + secrets.token_urlsafe(5);
+    return str(int(time.time())) + secrets.token_urlsafe(5)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -43,6 +43,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         )
     return sec.uid
 
+
 @router.post("/token")
 async def token(form_data: OAuth2PasswordRequestForm = Depends()):
     # validate user
@@ -55,14 +56,14 @@ async def token(form_data: OAuth2PasswordRequestForm = Depends()):
     uid, balance = await smc_db_aio.get_user_details(MOCK_USER_EMAIL)
 
     sec = await Security.create(
-            token=generate_token(),
-            uid=uid
-        )
+        token=generate_token(),
+        uid=uid
+    )
     return {"access_token": sec.token, "token_type": "bearer"}
 
 
 @router.get("/logout")
-async def logout(token = Depends(oauth2_scheme)) -> dict:
+async def logout(token=Depends(oauth2_scheme)) -> dict:
     it = await Security.filter(token=token).first()
     if it:
         print("deleting it")
